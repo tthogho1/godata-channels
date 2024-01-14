@@ -1,31 +1,26 @@
-<!--
-	SPDX-FileCopyrightText: 2023 The Pion community <https://pion.ly>
-	SPDX-License-Identifier: MIT
--->
 <html lang="en">
 <head>
     <script src="wasm_exec.js"></script>
     <link rel="stylesheet" href="demo.css">
     <script>
     const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("demo.wasm"), go.importObject).then((result) => {
+    WebAssembly.instantiateStreaming(fetch("data-channels.wasm"), go.importObject).then((result) => {
     go.run(result.instance);
     });
     </script>
 </head>
 <body>
+Golang base64 Session Description<br />
+<textarea id="remoteSessionDescription"></textarea><br/>
+<button onclick="window.startSession()">Start Session</button><br />
+
+<br />
+
 Browser base64 Session Description<br />
 <textarea id="localSessionDescription" readonly="true"></textarea> <br />
 <button onclick="window.copySDP()">
 	Copy browser SDP to clipboard
 </button>
-<br />
-<br />
-
-Golang base64 Session Description<br />
-<textarea id="remoteSessionDescription"></textarea><br/>
-<button onclick="window.startSession()">Start Session</button><br />
-
 <br />
 
 Message<br />
