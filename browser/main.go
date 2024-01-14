@@ -5,7 +5,7 @@
 package main
 
 import (
-	"data-channels/signal"
+	"browser/signal"
 	"fmt"
 	"syscall/js"
 	"time"
