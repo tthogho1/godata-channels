@@ -126,14 +126,44 @@ func main() {
 
 			// Output the answer in base64 so we can paste it in browser
 			//log(signal.Encode(*peerConnection.LocalDescription()))
-			fmt.Println(signal.Encode(*peerConnection.LocalDescription()))
+			localDescription := signal.Encode(*peerConnection.LocalDescription())
+			fmt.Println(localDescription)
+			local_el := getElementByID("localSessionDescription")
+			local_el.Set("value", localDescription)
 
+		}()
+		return js.Undefined()
+	}))
+
+	js.Global().Set("copySDP", js.FuncOf(func(_ js.Value, _ []js.Value) interface{} {
+		go func() {
+			defer func() {
+				if e := recover(); e != nil {
+					switch e := e.(type) {
+					case error:
+						handleError(e)
+					default:
+						handleError(fmt.Errorf("recovered with non-error value: (%T) %s", e, e))
+					}
+				}
+			}()
+
+			browserSDP := getElementByID("localSessionDescription")
+
+			browserSDP.Call("focus")
+			browserSDP.Call("select")
+
+			copyStatus := js.Global().Get("document").Call("execCommand", "copy")
+			if copyStatus.Bool() {
+				log("Copying SDP was successful")
+			} else {
+				log("Copying SDP was unsuccessful")
+			}
 		}()
 		return js.Undefined()
 	}))
 	// Block forever
 	select {}
-
 }
 
 func getElementByID(id string) js.Value {
