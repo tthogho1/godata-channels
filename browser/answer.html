@@ -31,8 +31,13 @@
         }
 
         function handleWebSocketMessage(event) {
-            console.log(event);
-            // Log server message
+            console.log(event.data);
+            const jsonData = JSON.parse(event.data);
+            if (jsonData.type === "SDP") {
+                document.getElementById("remoteSessionDescription").value = jsonData.message;
+                window.startSession();
+            }
+
         }
 
         function sendOffer() {
@@ -43,8 +48,8 @@
             }
             const message = {
                 type: "SDP",
-                from: "client1",
-                to: "client2",
+                from: "client2",
+                to: "client1",
                 message: sessionDescription
             };
             socket.send(JSON.stringify(message));
@@ -62,7 +67,8 @@ Golang base64 Session Description<br />
 
 Browser base64 Session Description<br />
 <textarea id="localSessionDescription" readonly="true"></textarea> <br />
-<button onclick="window.copySDP()">
+<!--button onclick="window.copySDP()" -->
+<button onclick="sendOffer()">
 	Copy browser SDP to clipboard
 </button>
 <br />

@@ -34,6 +34,14 @@
 
         function handleWebSocketMessage(event) {
             // Log server message
+                        console.log(event.data);
+            const jsonData = JSON.parse(event.data);
+            if (jsonData.type === "SDP") {
+                document.getElementById("remoteSessionDescription").value = jsonData.message;
+                //document.getElementById("startSession").click();
+                window.startSession();
+            }
+
         }
 
         function sendOffer() {
@@ -65,7 +73,7 @@ Browser base64 Session Description<br />
 
 Golang base64 Session Description<br />
 <textarea id="remoteSessionDescription"></textarea><br/>
-<button onclick="window.startSession()">Start Session</button><br />
+<button id="startSession" onclick="window.startSession()">Start Session</button><br />
 
 <br />
 
