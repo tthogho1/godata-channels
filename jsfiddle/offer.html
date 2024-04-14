@@ -1,0 +1,80 @@
+<!--
+	SPDX-FileCopyrightText: 2023 The Pion community <https://pion.ly>
+	SPDX-License-Identifier: MIT
+-->
+<html lang="en">
+<head>
+    <script src="wasm_exec.js"></script>
+    <link rel="stylesheet" href="demo.css">
+    <script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("demo.wasm"), go.importObject).then((result) => {
+    go.run(result.instance);
+    });
+    </script>
+    <script type="text/javascript">
+        var socket = null;
+
+        window.onload = function() {
+            const webSocketURL = 'ws://localhost:3000/ws?name=client1';
+            connectToWebSocket(webSocketURL);
+        };
+
+        function connectToWebSocket(url) {
+            const webSocket = new WebSocket(url);
+            webSocket.onopen = handleWebSocketOpen;
+            webSocket.onmessage = handleWebSocketMessage;
+            // socket used in sendOffer
+            socket = webSocket;
+        }
+
+        function handleWebSocketOpen() {
+            console.log('Connected to server');
+        }
+
+        function handleWebSocketMessage(event) {
+            // Log server message
+        }
+
+        function sendOffer() {
+            const sessionDescriptionTextarea = document.getElementById("localSessionDescription");
+            const sessionDescription = sessionDescriptionTextarea.value.trim();
+            if (sessionDescription === "") {
+                return;
+            }
+            const message = {
+                type: "SDP",
+                from: "client1",
+                to: "client2",
+                message: sessionDescription
+            };
+            socket.send(JSON.stringify(message));
+            //sessionDescriptionTextarea.value = "";
+        }
+
+    </script>  
+</head>
+<body>
+Browser base64 Session Description<br />
+<textarea id="localSessionDescription" readonly="true"></textarea> <br />
+<button onclick="sendOffer()">
+	Copy browser SDP to clipboard
+</button>
+<br />
+<br />
+
+Golang base64 Session Description<br />
+<textarea id="remoteSessionDescription"></textarea><br/>
+<button onclick="window.startSession()">Start Session</button><br />
+
+<br />
+
+Message<br />
+<textarea id="message">This is my DataChannel message!</textarea> <br/>
+<button onclick="window.sendMessage()">Send Message</button> <br />
+
+<br />
+Logs<br />
+<div id="logs"></div>
+</body>
+</html>
