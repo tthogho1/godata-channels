@@ -8,13 +8,14 @@ package main
 
 import (
 	"fmt"
+	"offer/signal"
 	"syscall/js"
 
 	"github.com/pion/webrtc/v4"
-	"github.com/pion/webrtc/v4/examples/internal/signal"
 )
 
 func main() {
+
 	// Configure and create a new PeerConnection.
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
@@ -23,6 +24,7 @@ func main() {
 			},
 		},
 	}
+
 	pc, err := webrtc.NewPeerConnection(config)
 	if err != nil {
 		handleError(err)
@@ -84,6 +86,7 @@ func main() {
 		}()
 		return js.Undefined()
 	}))
+
 	js.Global().Set("startSession", js.FuncOf(func(_ js.Value, _ []js.Value) interface{} {
 		go func() {
 			el := getElementByID("remoteSessionDescription")
@@ -101,6 +104,7 @@ func main() {
 		}()
 		return js.Undefined()
 	}))
+
 	js.Global().Set("copySDP", js.FuncOf(func(_ js.Value, _ []js.Value) interface{} {
 		go func() {
 			defer func() {
@@ -125,6 +129,7 @@ func main() {
 			} else {
 				log("Copying SDP was unsuccessful")
 			}
+
 		}()
 		return js.Undefined()
 	}))

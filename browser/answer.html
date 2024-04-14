@@ -1,0 +1,87 @@
+<html lang="en">
+<head>
+    <script src="wasm_exec.js"></script>
+    <link rel="stylesheet" href="demo.css">
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("data-channels.wasm"), go.importObject).then((result) => {
+        go.run(result.instance);
+        });
+    </script>
+
+
+    <script>
+        var socket = null;
+
+        window.onload = function() {
+            const webSocketURL = 'ws://localhost:3000/ws?name=client2';
+            connectToWebSocket(webSocketURL);
+        };
+
+        function connectToWebSocket(url) {
+            const webSocket = new WebSocket(url);
+            webSocket.onopen = handleWebSocketOpen;
+            webSocket.onmessage = handleWebSocketMessage;
+            // socket used in sendOffer
+            socket = webSocket;
+        }
+
+        function handleWebSocketOpen() {
+            console.log('Connected to server');
+        }
+
+        function handleWebSocketMessage(event) {
+            console.log(event.data);
+            const jsonData = JSON.parse(event.data);
+            if (jsonData.type === "SDP") {
+                document.getElementById("remoteSessionDescription").value = jsonData.message;
+                window.startSession();
+            }
+
+        }
+
+        function sendOffer() {
+            const sessionDescriptionTextarea = document.getElementById("localSessionDescription");
+            const sessionDescription = sessionDescriptionTextarea.value.trim();
+            if (sessionDescription === "") {
+                return;
+            }
+            const message = {
+                type: "SDP",
+                from: "client2",
+                to: "client1",
+                message: sessionDescription
+            };
+            socket.send(JSON.stringify(message));
+            //sessionDescriptionTextarea.value = "";
+        }
+
+    </script>
+</head>
+<body>
+Golang base64 Session Description<br />
+<textarea id="remoteSessionDescription"></textarea><br/>
+<button onclick="window.startSession()">Start Session</button><br />
+
+<br />
+
+Browser base64 Session Description<br />
+<textarea id="localSessionDescription" readonly="true"></textarea> <br />
+<!--button onclick="window.copySDP()" -->
+<button onclick="sendOffer()">
+	Copy browser SDP to clipboard
+</button>
+<br />
+
+Message<br />
+<textarea id="message">This is my DataChannel message!</textarea> <br/>
+<button onclick="window.sendMessage()">Send Message</button>
+<button onclick="window.createQRCD()">Create QRCODE of MSG</button>
+<br />
+<div>
+<img id="qrcode" />
+</div>
+Message Logs<br />
+<div id="logs"></div>
+</body>
+</html>
